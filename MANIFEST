@@ -1,0 +1,6 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/Math-Vector-Real-BoundingSphere.t
+lib/Math/Vector/Real/BoundingSphere.pm
