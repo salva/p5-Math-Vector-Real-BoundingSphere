@@ -1,31 +1,48 @@
 package Math::Vector::Real::BoundingSphere;
 
-use 5.012003;
+use 5.010;
 use strict;
 use warnings;
 
-require Exporter;
+use Math::Vector::Real;
 
-our @ISA = qw(Exporter);
+use Sort::Key::Top qw(nkeytail nkeyhead);
 
-# Items to export into callers namespace by default. Note: do not export
-# names by default without a very good reason. Use EXPORT_OK instead.
-# Do not simply export all your public functions/methods/constants.
-
-# This allows declaration	use Math::Vector::Real::BoundingSphere ':all';
-# If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
-# will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(
-	
-) ] );
-
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-our @EXPORT = qw(
-	
-);
-
-our $VERSION = '0.01';
+sub bounding_sphere {
+    my $class = shift;
+    my @v = @_;
+    my ($top, $bottom) = Math::Vector::Real->box(@v);
+    my $center = 0.5 * ($top + $bottom);
+    say "box: $top-$bottom";
+    for (1..2000) {
+        my @d2 = map $center->dist2($_), @v;
+        say "d: ", join(", ", map sqrt($_), @d2);
+        my $farthest = $v[0];
+        my $d2 = $d2[0];
+        for (1..$#d2) {
+            if ($d2[$_] > $d2) {
+                $d2 = $d2[$_];
+                $farthest = $v[$_];
+            }
+        }
+        # my $farthest = nkeytail { $center->dist2($_) } @v;
+        # my $d2 = $center->dist2($farthest);
+        say "center: $center, d: " , sqrt($d2);
+        my $u = ($farthest - $center)->versor;
+        # map { say "\$_: $_" } @v;
+        my $l = nkeyhead {
+            #say "\$_: $_";
+            my $op = $_ - $center;
+            sqrt($u->decompose($op)->abs2 + $d2) + $op * $u;
+        } @v;
+        my $op = $l - $center;
+        my $delta = $u * 0.5 * (sqrt($u->decompose($op)->abs2 + $d2) + $op * $u);
+        if ($delta->abs2 / $d2 < 0.001) {
+            return ($center, sqrt($d2))
+        }
+        $center += $delta;
+    }
+}
 
 
 # Preloaded methods go here.

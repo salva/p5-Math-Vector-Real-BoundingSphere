@@ -58,3 +58,4 @@ while (<>) {
 
 open my $fh, ">output.png";
 print $fh $im->png;
+

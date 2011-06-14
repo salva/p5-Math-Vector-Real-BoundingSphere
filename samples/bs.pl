@@ -16,7 +16,7 @@ while (<DATA>) {
     push @p, V($1, $2) if /\{(-?[\d\.]+)\,(-?[\d\.]+)}/;
 }
 
-@p = @p[7..12];
+@p = @p[0..$#p];
 
 my ($center, $radius) = Math::Vector::Real::BoundingSphere->bounding_sphere(@p);
 
